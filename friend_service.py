@@ -8,6 +8,7 @@ from auth import login_required, get_current_user
 friend_bp = Blueprint("friend", __name__)
 
 
+
 @friend_bp.route("/api/friends")
 @login_required
 def get_friends():

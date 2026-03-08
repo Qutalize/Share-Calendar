@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 DB_PATH = os.path.join(os.path.dirname(__file__), "calendar.db")
 
 
+
 def get_db():
     """データベース接続を返す"""
     conn = sqlite3.connect(DB_PATH)

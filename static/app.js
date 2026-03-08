@@ -310,6 +310,7 @@ async function checkConflictPreview() {
   }
 }
 
+
 async function submitEvent() {
   const title = document.getElementById("ev-title").value.trim();
   const start_time = document.getElementById("ev-start").value;
@@ -571,17 +572,33 @@ function renderNotifications(notifications) {
     participation_update: "✅",
   };
 
-  list.innerHTML = notifications.map(n => `
+  list.innerHTML = notifications.map(n => {
+    // フレンド申請通知かつ未処理の場合は承認/拒否ボタンを表示
+    const isFriendReq = n.type === "friend_request" && n.related_id && !n.is_read;
+    const actionButtons = isFriendReq ? `
+      <div style="display:flex;gap:8px;margin-top:10px" onclick="event.stopPropagation()">
+        <button class="btn btn-success btn-sm"
+          onclick="respondFriendRequest(${n.related_id}, 'accept', '')">
+          ✓ 承認
+        </button>
+        <button class="btn btn-ghost btn-sm"
+          onclick="respondFriendRequest(${n.related_id}, 'reject', '')">
+          ✗ 拒否
+        </button>
+      </div>` : "";
+
+    return `
     <div class="notif-card ${n.is_read ? "" : "unread"} ${n.type}"
          onclick="markRead(${n.id}, this)">
       <div class="notif-icon">${icons[n.type] || "🔔"}</div>
       <div class="notif-body">
         <div class="notif-message">${n.message}</div>
         <div class="notif-time">${formatRelative(n.created_at)}</div>
+        ${actionButtons}
       </div>
       ${!n.is_read ? '<div style="width:8px;height:8px;background:var(--primary);border-radius:50%;flex-shrink:0;margin-top:6px"></div>' : ""}
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
 
 async function markRead(id, el) {
