@@ -363,6 +363,14 @@ async function openDetailModal(ev) {
     locRow.classList.add("hidden");
   }
 
+  const traRow = document.getElementById("detail-train-row");
+  if (ev.train) {
+    document.getElementById("detail-train").textContent = ev.train;
+    traRow.classList.remove("hidden");
+  } else {
+    traRow.classList.add("hidden");
+  }
+
   const descRow = document.getElementById("detail-desc-row");
   if (ev.description) {
     document.getElementById("detail-description").textContent = ev.description;

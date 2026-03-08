@@ -151,7 +151,7 @@ def create_event():
     #print("料金：" + fare)
     print("URL：" + route_url)
 
-    location=location
+    location=train
     train=required_time+fare
     
     
@@ -184,7 +184,7 @@ def create_event():
         c = conn.execute(
             """INSERT INTO events
                (user_id, title, start_time, end_time, location,train,description, is_public)
-               VALUES (?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?)""",
             (user["id"], title, start.isoformat(), end.isoformat(),
              location,train, description, 1 if is_public else 0)
         )
