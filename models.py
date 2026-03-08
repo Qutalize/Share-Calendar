@@ -48,6 +48,7 @@ class Event:
     start_time: datetime
     end_time: datetime
     location: Optional[str] = None
+    train: Optional[str] = None
     description: Optional[str] = None
     is_public: bool = False
     group_id: Optional[int] = None
@@ -61,6 +62,7 @@ class Event:
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
             "location": self.location,
+            "train": self.train,
             "description": self.description,
             "is_public": self.is_public,
             "group_id": self.group_id,
@@ -84,7 +86,7 @@ class Friendship:
             "id": self.id,
             "user_id": self.user_id,
             "friend_id": self.friend_id,
-            "status": self.status,
+            "status": "accepted",#変更
         }
 
 

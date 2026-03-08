@@ -43,6 +43,7 @@ def init_db():
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
+
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL REFERENCES users(id),
@@ -50,6 +51,7 @@ def init_db():
             start_time TEXT NOT NULL,
             end_time TEXT NOT NULL,
             location TEXT,
+            train TEXT,
             description TEXT,
             is_public INTEGER DEFAULT 0,
             group_id INTEGER REFERENCES groups(id),
@@ -60,7 +62,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL REFERENCES users(id),
             friend_id INTEGER NOT NULL REFERENCES users(id),
-            status TEXT DEFAULT 'pending',
+            status TEXT DEFAULT 'accept',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(user_id, friend_id)
         );
@@ -117,18 +119,18 @@ def _insert_demo_data(c):
     base = now.replace(hour=10, minute=0, second=0, microsecond=0)
     events = [
         (1, "チームミーティング", (base + timedelta(days=1)).isoformat(),
-         (base + timedelta(days=1, hours=1)).isoformat(), "会議室A", "週次ミーティング", 1, group_id),
+         (base + timedelta(days=1, hours=1)).isoformat(), "会議室A", "", "週次ミーティング", 1, group_id),
         (1, "ランチ会", (base + timedelta(days=1, hours=0, minutes=30)).isoformat(),
-         (base + timedelta(days=1, hours=2)).isoformat(), "レストランB", "ランチ！", 0, None),
+         (base + timedelta(days=1, hours=2)).isoformat(), "レストランB", "", "ランチ！", 0, None),
         (1, "勉強会", (base + timedelta(days=3)).isoformat(),
-         (base + timedelta(days=3, hours=2)).isoformat(), "図書館", "Python勉強会", 1, group_id),
+         (base + timedelta(days=3, hours=2)).isoformat(), "図書館", "", "Python勉強会", 1, group_id),
         (2, "サッカー練習", (base + timedelta(days=5)).isoformat(),
-         (base + timedelta(days=5, hours=2)).isoformat(), "グラウンド", "練習試合", 1, group_id),
+         (base + timedelta(days=5, hours=2)).isoformat(), "グラウンド", "", "練習試合", 1, group_id),
     ]
     c.executemany(
         """INSERT INTO events
-           (user_id, title, start_time, end_time, location, description, is_public, group_id)
-           VALUES (?,?,?,?,?,?,?,?)""",
+           (user_id, title, start_time, end_time, location, train, description, is_public, group_id)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
         events
     )
 
