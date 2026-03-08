@@ -1,6 +1,12 @@
 """
 event_service.py - 予定管理・ダブルブッキング判定
 """
+# -*- coding: utf-8 -*-
+import requests
+from bs4 import BeautifulSoup
+
+
+    
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime
 from data import get_db
@@ -114,6 +120,34 @@ def create_event():
     start_str = data.get("start_time", "")
     end_str = data.get("end_time", "")
     location = data.get("location", "")
+    departure_station, destination_station = location.split(" ")
+    """
+    Yahoo路線情報から所要時間と料金を取得する関数
+    """
+
+    route_url = (
+        "https://transit.yahoo.co.jp/search/print?from="
+        + departure_station
+        + "&flatlon=&to="
+        + destination_station
+    )
+
+    route_response = requests.get(route_url)
+    route_soup = BeautifulSoup(route_response.text, "html.parser")
+
+    route_summary = route_soup.find("div", class_="routeSummary")
+
+    required_time = route_summary.find("li", class_="time").get_text()
+    fare = route_summary.find("li", class_="fare").get_text()
+
+
+
+    print("======{}から{}=======".format(departure_station, destination_station))
+    print("所要時間：" + required_time)
+    print("料金：" + fare)
+    print("URL：" + route_url)
+    
+    
     description = data.get("description", "")
     is_public = data.get("is_public", False)
 
