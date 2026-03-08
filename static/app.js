@@ -249,6 +249,7 @@ function renderEventList() {
     const start = formatDt(ev.start_time);
     const end = formatDt(ev.end_time);
     const location = ev.location ? `📍 ${ev.location}` : "";
+    const train = ev.train? `🚃 ${ev.train}` : "";
     const owner = ev.is_mine ? "" : (ev.owner_name ? `👤 ${ev.owner_name}` : "");
 
     card.innerHTML = `
@@ -261,6 +262,7 @@ function renderEventList() {
         <div class="event-card-meta">
           <span>🕐 ${start} 〜 ${end}</span>
           ${location ? `<span>${location}</span>` : ""}
+          ${train ? `<span>${train}</span>` : ""}
           ${owner ? `<span>${owner}</span>` : ""}
         </div>
       </div>
@@ -280,6 +282,7 @@ function closeEventModal() {
   document.getElementById("conflict-preview").classList.add("hidden");
   document.getElementById("ev-title").value = "";
   document.getElementById("ev-location").value = "";
+  document.getElementById("ev-train").value = "";
   document.getElementById("ev-description").value = "";
   document.getElementById("ev-public").checked = false;
 }
@@ -315,6 +318,7 @@ async function submitEvent() {
   const start_time = document.getElementById("ev-start").value;
   const end_time = document.getElementById("ev-end").value;
   const location = document.getElementById("ev-location").value.trim();
+  const train = document.getElementById("ev-train").value.trim();
   const description = document.getElementById("ev-description").value.trim();
   const is_public = document.getElementById("ev-public").checked;
 
@@ -329,7 +333,7 @@ async function submitEvent() {
 
   try {
     const data = await api("POST", "/api/events",
-      { title, start_time, end_time, location, description, is_public });
+      { title, start_time, end_time, location,train, description, is_public });
 
     if (data.warning) {
       toast(data.warning, "warning");
@@ -357,6 +361,14 @@ async function openDetailModal(ev) {
     locRow.classList.remove("hidden");
   } else {
     locRow.classList.add("hidden");
+  }
+
+  const traRow = document.getElementById("detail-train-row");
+  if (ev.train) {
+    document.getElementById("detail-train").textContent = ev.train;
+    traRow.classList.remove("hidden");
+  } else {
+    traRow.classList.add("hidden");
   }
 
   const descRow = document.getElementById("detail-desc-row");
@@ -463,7 +475,7 @@ function renderFriendList(friends) {
         <div style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono)">@${f.username}</div>
       </div>
       <span class="friend-status status-${f.status}">
-        ${f.status === "accepted" ? "✓ フレンド" : "⏳ 申請中"}
+        ${f.status === "accepted"}
       </span>
     </div>
   `).join("");
