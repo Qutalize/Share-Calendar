@@ -511,6 +511,32 @@ async function sendFriendRequest(friendId, name) {
   }
 }
 
+
+async function respondFriendRequest(userId, action, name) {
+  try {
+    await api("POST", "/api/friends/respond", {
+      user_id: userId,
+      action: action
+    });
+
+    if (action === "accept") {
+      toast(`${name}さんのフレンド申請を承認しました`, "success");
+    } else {
+      toast(`${name}さんのフレンド申請を拒否しました`, "info");
+    }
+
+    // フレンド一覧を更新
+    loadFriends();
+
+    // 通知更新
+    loadNotifications();
+
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+
 // ===== Notifications =====
 async function loadNotifications() {
   try {
