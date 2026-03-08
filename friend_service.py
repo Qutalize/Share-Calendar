@@ -17,7 +17,8 @@ def get_friends():
         """SELECT u.id, u.username, u.display_name, f.status
            FROM friendships f
            JOIN users u ON f.friend_id = u.id
-           WHERE f.user_id = ?""",
+           WHERE f.user_id = ?
+             AND f.friend_id != f.user_id""",
         (user["id"],)
     ).fetchall()
     conn.close()
@@ -94,16 +95,24 @@ def respond_friend_request():
 
     conn = get_db()
     status = "accepted" if action == "accept" else "rejected"
-    conn.execute(
+
+    # 申請レコードは (user_id=申請者, friend_id=受信者=自分) で保存されている
+    # ※旧コードは user_id と friend_id が逆だったため 0件更新になっていた
+    cur = conn.execute(
         "UPDATE friendships SET status = ? WHERE user_id = ? AND friend_id = ?",
         (status, requester_id, user["id"])
     )
 
+    if cur.rowcount == 0:
+        conn.close()
+        return jsonify({"error": "申請レコードが見つかりません"}), 404
+
     if action == "accept":
-        # 相互フレンド登録
+        # 相互フレンド登録（受信者→申請者 のレコードを追加/更新）
         conn.execute(
-            """INSERT OR IGNORE INTO friendships (user_id, friend_id, status)
-               VALUES (?,?,'accepted')""",
+            """INSERT INTO friendships (user_id, friend_id, status)
+               VALUES (?,?,'accepted')
+               ON CONFLICT(user_id, friend_id) DO UPDATE SET status='accepted'""",
             (user["id"], requester_id)
         )
         conn.execute(

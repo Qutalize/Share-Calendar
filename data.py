@@ -132,11 +132,17 @@ def _insert_demo_data(c):
         events
     )
 
-    # フレンド関係
-    c.execute("INSERT INTO friendships (user_id, friend_id, status) VALUES (1, 2, 'accepted')")
-    c.execute("INSERT INTO friendships (user_id, friend_id, status) VALUES (2, 1, 'accepted')")
-    c.execute("INSERT INTO friendships (user_id, friend_id, status) VALUES (1, 3, 'accepted')")
-    c.execute("INSERT INTO friendships (user_id, friend_id, status) VALUES (3, 1, 'accepted')")
+    # フレンド関係（相互登録: alice-bob, alice-carol, bob-carol）
+    friendships = [
+        (1, 2), (2, 1),  # alice ↔ bob
+        (1, 3), (3, 1),  # alice ↔ carol
+        (2, 3), (3, 2),  # bob  ↔ carol  ← 追加（これがないとbobのフレンド一覧が不完全）
+    ]
+    for uid, fid in friendships:
+        c.execute(
+            "INSERT OR IGNORE INTO friendships (user_id, friend_id, status) VALUES (?,?,'accepted')",
+            (uid, fid)
+        )
 
     # 参加登録
     c.execute("INSERT INTO event_participations (event_id, user_id, response) VALUES (3, 2, 'accepted')")
