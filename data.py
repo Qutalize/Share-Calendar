@@ -11,7 +11,7 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "calendar.db")
 
 def get_db():
     """データベース接続を返す"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
@@ -50,6 +50,7 @@ def init_db():
             start_time TEXT NOT NULL,
             end_time TEXT NOT NULL,
             location TEXT,
+            train TEXT,
             description TEXT,
             is_public INTEGER DEFAULT 0,
             group_id INTEGER REFERENCES groups(id),
@@ -117,18 +118,18 @@ def _insert_demo_data(c):
     base = now.replace(hour=10, minute=0, second=0, microsecond=0)
     events = [
         (1, "チームミーティング", (base + timedelta(days=1)).isoformat(),
-         (base + timedelta(days=1, hours=1)).isoformat(), "会議室A", "週次ミーティング", 1, group_id),
+         (base + timedelta(days=1, hours=1)).isoformat(), "会議室A", "","週次ミーティング", 1, group_id),
         (1, "ランチ会", (base + timedelta(days=1, hours=0, minutes=30)).isoformat(),
-         (base + timedelta(days=1, hours=2)).isoformat(), "レストランB", "ランチ！", 0, None),
+         (base + timedelta(days=1, hours=2)).isoformat(), "レストランB","", "ランチ！", 0, None),
         (1, "勉強会", (base + timedelta(days=3)).isoformat(),
-         (base + timedelta(days=3, hours=2)).isoformat(), "図書館", "Python勉強会", 1, group_id),
+         (base + timedelta(days=3, hours=2)).isoformat(), "図書館", "","Python勉強会", 1, group_id),
         (2, "サッカー練習", (base + timedelta(days=5)).isoformat(),
-         (base + timedelta(days=5, hours=2)).isoformat(), "グラウンド", "練習試合", 1, group_id),
+         (base + timedelta(days=5, hours=2)).isoformat(), "グラウンド","", "練習試合", 1, group_id),
     ]
     c.executemany(
         """INSERT INTO events
-           (user_id, title, start_time, end_time, location, description, is_public, group_id)
-           VALUES (?,?,?,?,?,?,?,?)""",
+           (user_id, title, start_time, end_time, location, train, description, is_public, group_id)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
         events
     )
 
