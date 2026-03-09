@@ -310,7 +310,6 @@ async function checkConflictPreview() {
   }
 }
 
-
 async function submitEvent() {
   const title = document.getElementById("ev-title").value.trim();
   const start_time = document.getElementById("ev-start").value;
