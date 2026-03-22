@@ -208,7 +208,7 @@ function renderCalendar() {
   if (conflictEvents.length > 0) {
     const names = [...new Set(conflictEvents.map(e => e.title))].join("、");
     document.getElementById("conflict-text").textContent =
-      `ダブルブッキング: 「${names}」に重複があります`;
+      `⚠️ ダブルブッキング: 「${names}」に重複があります`;
     banner.classList.remove("hidden");
   } else {
     banner.classList.add("hidden");
@@ -249,7 +249,6 @@ function renderEventList() {
     const start = formatDt(ev.start_time);
     const end = formatDt(ev.end_time);
     const location = ev.location ? `📍 ${ev.location}` : "";
-    const train = ev.train? `🚃 ${ev.train}` : "";
     const owner = ev.is_mine ? "" : (ev.owner_name ? `👤 ${ev.owner_name}` : "");
 
     card.innerHTML = `
@@ -262,7 +261,6 @@ function renderEventList() {
         <div class="event-card-meta">
           <span>🕐 ${start} 〜 ${end}</span>
           ${location ? `<span>${location}</span>` : ""}
-          ${train ? `<span>${train}</span>` : ""}
           ${owner ? `<span>${owner}</span>` : ""}
         </div>
       </div>
@@ -282,7 +280,6 @@ function closeEventModal() {
   document.getElementById("conflict-preview").classList.add("hidden");
   document.getElementById("ev-title").value = "";
   document.getElementById("ev-location").value = "";
-  document.getElementById("ev-train").value = "";
   document.getElementById("ev-description").value = "";
   document.getElementById("ev-public").checked = false;
 }
@@ -313,13 +310,11 @@ async function checkConflictPreview() {
   }
 }
 
-
 async function submitEvent() {
   const title = document.getElementById("ev-title").value.trim();
   const start_time = document.getElementById("ev-start").value;
   const end_time = document.getElementById("ev-end").value;
   const location = document.getElementById("ev-location").value.trim();
-  const train = document.getElementById("ev-train").value.trim();
   const description = document.getElementById("ev-description").value.trim();
   const is_public = document.getElementById("ev-public").checked;
 
@@ -334,7 +329,7 @@ async function submitEvent() {
 
   try {
     const data = await api("POST", "/api/events",
-      { title, start_time, end_time, location,train, description, is_public });
+      { title, start_time, end_time, location, description, is_public });
 
     if (data.warning) {
       toast(data.warning, "warning");
@@ -362,14 +357,6 @@ async function openDetailModal(ev) {
     locRow.classList.remove("hidden");
   } else {
     locRow.classList.add("hidden");
-  }
-
-  const traRow = document.getElementById("detail-train-row");
-  if (ev.train) {
-    document.getElementById("detail-train").textContent = ev.train;
-    traRow.classList.remove("hidden");
-  } else {
-    traRow.classList.add("hidden");
   }
 
   const descRow = document.getElementById("detail-desc-row");
@@ -644,7 +631,7 @@ function formatDt(isoStr) {
 function formatRelative(isoStr) {
   const d = new Date(isoStr);
   const now = new Date();
-  const diff = (now - d) / 10000;
+  const diff = (now - d) / 1000;
   if (diff < 60) return "たった今";
   if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
